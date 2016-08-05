@@ -3,7 +3,6 @@
 HotKeySet("{f5}","ChangeViewForward")
 HotKeySet("+{f5}","ChangeViewReverse")
 
-
 while 1
 	Sleep(1000)
 WEnd
