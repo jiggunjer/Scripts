@@ -1,13 +1,20 @@
+;#NoTrayIcon
 #include "Automating Windows Explorer\Includes\AutomatingWindowsExplorer.au3" ;UDF
 #include <Array.au3>
+#include <GUIConstantsEx.au3>
+;Opt("GUIOnEventMode", 1)
 
 Local $str = "Address: ftp" ;part of visible text in explorer control, unique to ftp, I think...
 Local $CheckedWindows[5] ;Keep track of activated windows because I don't have a shell hook for window.created
 Local $hExplorer
+$oShell = ObjCreate("shell.application")
+$wOb = ObjEvent($oShell,"_CallBack_")
+
 
 while 1
 	Sleep(2000)    
     $hExplorer = WinWaitActive("[CLASS:CabinetWClass]", $str)
+    ;GUISetOnEvent($GUI_EVENT_CLOSE, "CloseCallback",$hExplorer)
     
     If not ContainsElement($CheckedWindows,$hExplorer) then ;Only trigger on a *new* window
         setFTPview($hExplorer)
@@ -36,3 +43,6 @@ func setFTPview($hExplorer)
     Sleep(1000)
 endfunc
 
+func CloseCallback()
+    msgbox(0,"t","CLOSED")
+Endfunc

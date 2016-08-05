@@ -3,5 +3,7 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 run, basics.ahk
-run, mapkeys.au3
+run, defaultFTP.au3
+run, changeview.au3
+run, capsbackspace.au3
 ExitApp

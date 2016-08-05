@@ -1,3 +1,4 @@
+#NoTrayIcon
 #include "Automating Windows Explorer\Includes\AutomatingWindowsExplorer2.au3" ;UDF get/set icon view
 
 HotKeySet("{f5}","ChangeViewForward")

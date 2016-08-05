@@ -1,3 +1,4 @@
+#NoTrayIcon
 #include <WinAPISys.au3> ;get keyboard
 $KBL_CUSTOM  = "0xF0C00409" ;My Custom Keyboard Layout code
 $KBL_CUSTOM2 = "0xF0C10409" ;My Custom Keyboard Layout code
