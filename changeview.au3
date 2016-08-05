@@ -1,7 +1,8 @@
-#include "Automating Windows Explorer\Includes\AutomatingWindowsExplorer.au3" ;UDF get/set icon view
+#include "Automating Windows Explorer\Includes\AutomatingWindowsExplorer2.au3" ;UDF get/set icon view
 
 HotKeySet("{f5}","ChangeViewForward")
 HotKeySet("+{f5}","ChangeViewReverse")
+
 
 while 1
 	Sleep(1000)
@@ -9,77 +10,77 @@ WEnd
 
 ;--- Functions
 Func ChangeViewForward()
-   changeview("forward")
+   HotKeySet("{f5}")
+   Send("{f5}")
+   ChangeView("forward")
+   HotKeySet("{f5}","ChangeViewForward")
 EndFunc
 
 Func ChangeViewReverse()
-    changeview("backward")
+   HotKeySet("+{f5}")
+   Send("+{f5}")
+   ChangeView("backward")
+   HotKeySet("+{f5}","ChangeViewReverse")
 EndFunc
 
-Func changeview($direction)
-    if $direction == "forward" then
-        Local $forward = True
+Func ChangeView($direction)
+    Local $forward = False
+    if $direction == "forward" then $forward = True
+    If WinActive("[REGEXPCLASS:^(Cabinet|Explore)WClass$]") Then
+    ;---
+
+    Local $hExplorer = WinGetHandle( "[REGEXPCLASS:^(Cabinet|Explore)WClass$]" )
+    GetIShellBrowser( $hExplorer )
+    GetShellInterfaces()
+
+    Local $view = GetIconView() ;returns array [view,size]
+    Local $iNewView, $iNewSize
+    ;ConsoleWrite("STARTVIEW: " & $view[0] & " ")
+
+    If $forward Then
+    If $view[0] = 8 Then
+      $iNewView = 1
     Else
-        Local $forward = False
+      $iNewView = $view[0] + 1
+      If ($iNewView = 5) Or ($iNewView = 7) Then $iNewView += 1 ;skip from 5 to 6, or from 7 to 8
+    EndIf
+    Else ;backward
+      If $view[0] = 1 Then
+        $iNewView = 8
+      Else
+        $iNewView = $view[0] - 1
+        If ($iNewView = 5) Or ($iNewView = 7) Then $iNewView -= 1 ;skip from 5 to 4, or from 7 to 6
+      EndIf
     EndIf
 
-    ; Always send normal f5
-   HotKeySet("{f5}")
-   Send("{f5}")
-   HotKeySet("{f5}","changeview")
+    Switch $iNewView
+    Case 1
+      $iNewSize = 48
+    Case 2 To 4
+      $iNewSize = 16
+    Case 6
+      $iNewSize = 48
+    Case 8
+      $iNewSize = 32
+    EndSwitch
+    ;ConsoleWrite("ENDVIEW: " & $iNewView & " ")
+    SetIconView( $iNewView, $iNewSize ) ; Set view
 
-   If WinActive("[REGEXPCLASS:^(Cabinet|Explore)WClass$]") Then
-
-  ; Windows Explorer on XP, Vista, 7, 8
-  Local $hExplorer = WinGetHandle( "[REGEXPCLASS:^(Cabinet|Explore)WClass$]" )
-  If Not $hExplorer Then
-    MsgBox( 0, "Automating Windows Explorer", "Could not find Windows Explorer. Terminating." )
-    Return
-  EndIf
-
-  ; Get an IShellBrowser interface
-  GetIShellBrowser( $hExplorer )
-  If Not IsObj( $oIShellBrowser ) Then
-    MsgBox( 0, "Automating Windows Explorer", "Could not get an IShellBrowser interface. Terminating." )
-    Return
-  EndIf
-
-  ; Get other interfaces
-  GetShellInterfaces()
-
-  ; Get current icon view
-  Local $view = GetIconView() ;returns array [view,size]
-
-  ; Determine the new view
-  Local $iView, $iSize, $iNewView, $iNewSize
-  $iView = $view[0] ; view
-  $iSize = $view[1] ; size
-  If $iView = 8 Then
-	   $iNewView = 1
-	   $iNewSize = 48
-  Else
-	  $iNewView = $iView + 1
-	  If ($iNewView = 5) Or ($iNewView = 7) Then
-		$iNewView += 1 ;skip from 5 to 6, or from 7 to 8
-	  EndIf
-  EndIf
-  Switch $iNewView
-  Case 2 To 4
-	$iNewSize = 16
-  Case 6
-	$iNewSize = 48
-  Case 8
-	$iNewSize = 32
-  EndSwitch
-
-  ;MsgBox( 0, "iView", "Old: " & $iView )
-  ;MsgBox( 0, "NewView", "New: " & $iNewView )
-  SetIconView( $iNewView, $iNewSize ) ; Set view
-  EndIf ;Winactive
+    ;---
+    EndIf ;Winactive
 EndFunc
 
 
-;---Bugs
-;Sometimes the backspace-version actives caps lock with repeated presses. Using that mode should always result in caps lock off, and a matching keyboard light state.
-;Related to above: keyboard light also toggles unpredicably. Light state doesn't correlate with CapsLock state
+;Icon sizes are standard: 16, 48, 96, 196
+;Details & list: 16
+;Tiles: 48
+;Content: 32 (!)
+;~ FVM_ICON        = 1,  (48, 96, 196)
+;~ FVM_SMALLICON   = 2,  (16)
+;~ FVM_LIST        = 3,
+;~ FVM_DETAILS     = 4,
+;~ FVM_THUMBNAIL   = 5,  (seems to be same as ICON in win7)
+;~ FVM_TILE        = 6,
+;~ FVM_THUMBSTRIP  = 7,  (seems to be same as ICON in win7)
+;~ FVM_CONTENT     = 8,
 
