@@ -39,7 +39,7 @@ return
 
 ;--- Map Win + X to ConEmu64 {SECTION 5}
 #x::
-    Run, scripts\ConEmu64.lnk
+    Run, "scripts\Console Emulator (x64).lnk"
 return
 
 ;--- Map Win + G to quick google text {SECTION 6}
@@ -103,7 +103,7 @@ OpenCmdInCurrent()
     {
         try
 		{
-		Run,  scripts\elecmd.lnk "/K cd /D %full_path%"		
+		Run,  scripts\cmd.exe.lnk "/K cd /D %full_path%"		
 		}
 		catch e
 		{
