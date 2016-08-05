@@ -1,45 +1,31 @@
 #include <WinAPISys.au3> ;get keyboard
-$KBL_CUSTOM = "0xF0C00409" ;My Custom Keyboard Layout code
+$KBL_CUSTOM  = "0xF0C00409" ;My Custom Keyboard Layout code
+$KBL_CUSTOM2 = "0xF0C10409" ;My Custom Keyboard Layout code
 ;$KBL_US 	= "0x04090409" ;US Keyboard Layout code
 ;$KBL_USINT	= "0xF0010409" ;US-international Keyboard Layout code
 ;$KBL_GREEK	= "0x04080408" ;Greek Keyboard Layout code
 
-;Opt("SendAttachMode", 1)
-Opt("SendCapslockMode", 0) 	;1 restores Caps to pre-send state (default!), 0 doesn't store
+Opt("SendCapslockMode", 0)
 Send("{CapsLock off}")
-HotKeySet("{CapsLock}","capsfun")
+HotKeySet("{CapsLock}","capsfun") ;Seems to capture capslock, in contrast to what documentation says...
 
 while 1
 	Sleep(1000)
 WEnd
 
 ;--- Functions
-Func capsfun()
-BlockInput($BI_DISABLE)
-   $handl = WinGetHandle("")
-   $ID = _WinAPI_GetKeyboardLayout ( $handl ) ;gets 32bit hex value of keyboard layout
-
-   If $ID = $KBL_CUSTOM Then
-	  HotKeySet("{CapsLock}") ;disable hotkey
-	  Send("{BACKSPACE}{CapsLock off}") ;undo caps since it isn't captured by HotKeySet
-	  HotKeySet("{CapsLock}","capsfun") ;reset hotkey
-	  _DisableCaps() ;bugpatch
-   Else ;no hotkey stuff
-	  Send("{CapsLock toggle}") ;Since the capslock isn't captured by HotKeySet this shouldn't be necessary, but it is?!
-   EndIf
-BlockInput($BI_ENABLE)
-EndFunc
-
-Func _DisableCaps()
-   $state = _GetCapsLockState()
-   If $state Then
-	  HotKeySet("{CapsLock}") ;disable hotkey
-	  Send("{CapsLock off}")
-	  HotKeySet("{CapsLock}","capsfun") ;reset hotkey
+Func capsfun()   
+   Local $ID = _WinAPI_GetKeyboardLayout ( WinGetHandle("") ) ;gets 32bit hex value of keyboard layout 
+   If ($ID = $KBL_CUSTOM) Or ($ID = $KBL_CUSTOM2) Then
+     Send("{BACKSPACE}")     
+   Else
+     HotKeySet("{CAPSLOCK}")
+     Send("{CAPSLOCK}")
+     HotKeySet("{CAPSLOCK}","capsfun")
    EndIf
 EndFunc
 
-Func _GetCapsLockState()
+Func _GetCapsLockState() ;returns bool
 
     Local $Ret = DllCall('user32.dll', 'int', 'GetKeyState', 'int', 0x14)
 
