@@ -2,10 +2,6 @@
 
 HotKeySet("{f5}","ChangeViewForward")
 HotKeySet("+{f5}","ChangeViewReverse")
-$KBL_CUSTOM = "0xF0C00409" ;My Custom Keyboard Layout code
-;$KBL_US 	= "0x04090409" ;US Keyboard Layout code
-;$KBL_USINT	= "0xF0010409" ;US-international Keyboard Layout code
-;$KBL_GREEK	= "0x04080408" ;Greek Keyboard Layout code
 
 while 1
 	Sleep(1000)
@@ -16,7 +12,7 @@ Func ChangeViewForward()
    changeview("forward")
 EndFunc
 
-Func ChangeViewReverse() 
+Func ChangeViewReverse()
     changeview("backward")
 EndFunc
 
