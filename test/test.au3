@@ -1,35 +1,47 @@
+#include <WinAPIProc.au3>
+#include <WinAPI.au3>
+#include <WinAPISys.au3>
 #include <Array.au3>
+#include <GUIConstants.au3>
+#include <APISysConstants.au3>
 
-Local $aArray[5] = [0, 1, 2, 3, 4]
 
-_ArrayDisplay($aArray, "Original")
-_ArrayDelete($aArray, 2)
-_ArrayDisplay($aArray, "Element 2 deleted")
+Global $hGUI = GUICreate("GUI")
 
-Local $aArray_Base[25][4]
-For $i = 0 To 24
-    For $j = 0 To 3
-        $aArray_Base[$i][$j] = $i & "-" & $j
-    Next
-Next
+GUISetState(@SW_SHOW, $hGUI)
 
-; Single row
-$aArray = $aArray_Base
-_ArrayDisplay($aArray, "BEFORE deletion")
-_ArrayDelete($aArray, 7)
-_ArrayDisplay($aArray, "SINGLE ROW deleted")
+GUIRegisterMsg(_WinAPI_RegisterWindowMessage('SHELLHOOK'), 'WM_SHELLHOOK')
+_WinAPI_RegisterShellHookWindow($hGUI)
 
-; Range string
-$aArray = $aArray_Base
-Local $sRange = "0;11-15;24"
-_ArrayDisplay($aArray, "BEFORE deletion")
-_ArrayDelete($aArray, $sRange)
-ConsoleWrite(" " & @error & @CRLF)
-_ArrayDisplay($aArray, "RANGE STRING deleted")
 
-; 1D array
-$aArray = $aArray_Base
-Local $aDel[4] = [3, 5, 11, 13]
-_ArrayDisplay($aArray, "BEFORE deletion")
-_ArrayDelete($aArray, $aDel)
-_ArrayDisplay($aArray, "RANGE ARRAY deleted")
+
+;Run("notepad.exe")
+
+Local $nMsg=0
+While 1
+    $nMsg = GUIGetMsg()
+    Select
+        Case $nMsg = $GUI_EVENT_CLOSE
+            ExitLoop
+    EndSelect
+
+WEnd
+
+_WinAPI_DeregisterShellHookWindow($hGUI)
+Exit
+
+Func WM_SHELLHOOK($hWnd, $iMsg, $wParam, $lParam)
+    #forceref $iMsg
+    Switch $wParam
+        Case $HSHELL_WINDOWDESTROYED
+            ConsoleWrite('Destroyed: ' & @CRLF & _
+                    @TAB & 'PID: ' & WinGetProcess($lParam) & @CRLF & _ ; This will be -1.
+                    @TAB & 'ClassName: ' & _WinAPI_GetClassName($lParam) & @CRLF & _ ; This will be empty.
+                    @TAB & 'hWnd: ' & $lParam & @CRLF) ; This will be the handle of the window closed.
+        Case $HSHELL_WINDOWCREATED
+            ConsoleWrite('Created: ' & @CRLF & _
+                    @TAB & 'PID: ' & WinGetProcess($lParam) & @CRLF & _
+                    @TAB & 'ClassName: ' & _WinAPI_GetClassName($lParam) & @CRLF & _
+                    @TAB & 'hWnd: ' & $lParam & @CRLF) ; This will be the handle of the window closed.
+    EndSwitch
+EndFunc   ;==>WM_SHELLHOOK
